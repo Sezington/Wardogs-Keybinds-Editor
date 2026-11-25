@@ -1,6 +1,6 @@
 # WarDogs Keybind Editor
 
-The in-game keybind menu in **WarDogs** won't let you put one key on two actions. This tool edits your settings file directly so you can, for example Raise Collective with 'Space' and still jump with 'Space'
+The in-game keybind menu in **WarDogs** won't let you put one key on two actions. This tool edits your settings file directly so you can, for example Raise Collective with 'Space' and still jump with 'Space'.
 
 ![The editor with Crouch and Crouch Prone stacked on C](docs/screenshot.png)
 
