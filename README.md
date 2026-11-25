@@ -10,11 +10,15 @@ Get **WD-Keybind-Editor.exe** from the [Releases](../../releases) page.
 
 ## How to use
 
-1. Close WarDogs.
-2. Run `WD-Keybind-Editor.exe`. A small console window opens and the editor opens in your web browser. Keep the console window open while you edit.
-3. Your settings load automatically. Click any key to rebind it: press a key, click a mouse button, or scroll. The same key can go on as many actions as you like.
-4. Click **Save to game**, then start WarDogs.
+1. Run `WD-Keybind-Editor.exe`. A small console window opens and the editor opens in your web browser. Keep the console window open while you edit.
+2. Your settings load automatically. Click any key to rebind it: press a key, click a mouse button, or scroll. The same key can go on as many actions as you like.
+3. Click **Save to game**. If WarDogs is open, the editor warns you first; click **Save anyway**.
+4. **Reload the game** to apply your changes. Changes made in the editor don't take effect in a running game until you reload.
 5. Close the console window when you're done.
+
+> **Tip:** I recommend keeping WarDogs open in the **firing range** while you edit, so you can test your binds right away. Just remember each change needs a reload before it works. While testing, don't change binds in the game's own keybind menu, or the game may overwrite what you saved.
+
+> **If your settings don't load automatically:** click **Load a file by hand** and pick your `GameUserSettings.ini` yourself. It's usually at `%LOCALAPPDATA%\Wardogs\Saved\Config\WindowsClient\GameUserSettings.ini` (paste that into the File Explorer address bar).
 
 ## What it does (and doesn't do)
 
