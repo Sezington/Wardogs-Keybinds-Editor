@@ -1,0 +1,47 @@
+name: Bug report
+description: Something isn't working right in the editor or in game
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! A few details help a lot. Please don't paste your whole GameUserSettings.ini here; it contains some of your PC's device IDs.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What went wrong, and what did you expect to happen instead?
+      placeholder: I put Crouch and Prone both on C, saved, reloaded the game, but only Crouch works.
+    validations:
+      required: true
+  - type: input
+    id: actions
+    attributes:
+      label: Which action(s) or key(s)?
+      placeholder: Crouch, Prone, C
+  - type: dropdown
+    id: load
+    attributes:
+      label: Did your settings load automatically?
+      options:
+        - "Yes"
+        - No, I had to use "Load a file by hand"
+        - It wouldn't load at all
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Editor version
+      description: Shown at the top of the console window when you start it.
+      options:
+        - "1.2"
+        - "1.1"
+        - Other / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or anything else
+      description: Drag images in here. A screenshot of the editor or the in-game keybind menu helps.
