@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WarDogs Keybind Editor</title>
+
+
+<style>
+/* VOICE: a quartermaster's field tool, terse and practical
+   IDEA: a stencilled loadout card, with every action a row and every key a keycap
+   PICTURE: the bind sheet itself, opened mid-use with keycaps you click to rebind
+   COLOUR and TYPE: olive drab and canvas sand, signal orange for stacked keys; Saira Condensed + Inter
+   LAYOUT: toolbar, bind sheet on the left, side column (shared keys, hold/toggle, save) on the right; stacked under 900px */
+:root{color-scheme:light dark;--bg:light-dark(#e8e1cc,#14170f);--card:light-dark(#f6f1e3,#1d2116);--ink:light-dark(#22281a,#e7e0c8);--mute:light-dark(#5f6650,#9ea08a);--line:light-dark(#cfc6aa,#33392a);--ol:light-dark(#3d4a2a,#8c9a63);--cap:light-dark(#2c3420,#3d4632);--capi:#efe8d2;--sig:#e0662b;--sigs:light-dark(#fbe0d2,#3a2416)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2{font-family:"Saira Condensed","Bahnschrift SemiBold Condensed",Bahnschrift,Impact,sans-serif;font-weight:700;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(32px,5vw,46px)}h2{font-size:24px;margin-bottom:10px}
+.wrap{max-width:1240px;margin:0 auto;padding:clamp(18px,3vw,36px) max(4vw,14px)}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;justify-content:space-between;margin-bottom:18px}
+header p{margin:4px 0 0;color:var(--mute)}
+button,select,input{font:inherit;font-size:16px;color:inherit}
+.btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:600}
+.btn.pri{background:var(--ol);color:light-dark(#f6f1e3,#14170f);border-color:transparent}
+.btn:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:3px solid var(--sig);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],input[type=text],select{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--card)}
+.drop{display:block;cursor:pointer;max-width:760px;margin:0;border:2px dashed var(--ol);border-radius:14px;background:var(--card);padding:clamp(28px,6vw,64px);text-align:center}
+.drop.over{background:var(--sigs);border-color:var(--sig)}
+.drop strong{display:block;font-family:"Saira Condensed","Bahnschrift SemiBold Condensed",Bahnschrift,sans-serif;font-size:30px;margin-bottom:6px}
+.drop p{color:var(--mute);max-width:60ch;margin:8px auto;overflow-wrap:anywhere}
+.drop strong{line-height:1.1}
+.drop:hover{border-color:var(--sig)}
+.start-more{max-width:760px;margin:14px 0 0;display:grid;gap:12px}
+.note{max-width:760px;margin:0 0 14px;overflow-wrap:anywhere;padding:12px 16px;border-radius:10px;background:var(--sigs);border-left:4px solid var(--sig)}
+.note[hidden]{display:none}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.cat{font-family:"Saira Condensed","Bahnschrift SemiBold Condensed",Bahnschrift,sans-serif;font-size:20px;color:var(--ol);padding:14px 4px 6px;border-bottom:2px solid var(--ol)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto auto 44px;gap:8px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line)}
+.row.new{animation:flash 1.2s ease-out}
+@keyframes flash{from{background:var(--sigs)}to{background:transparent}}
+@media(prefers-reduced-motion:reduce){.row.new{animation:none}}
+.nm{font-weight:600}.tg{font-size:13px;color:var(--mute);overflow-wrap:anywhere}
+.cap{position:relative;min-width:112px;min-height:44px;padding:0 12px;border-radius:8px;border:0;border-bottom:4px solid #0006;background:var(--cap);color:var(--capi);font-weight:600;cursor:pointer;white-space:nowrap}
+.cap.empty{background:transparent;color:var(--mute);border:1px dashed var(--line);font-weight:500}
+.cap.dup{box-shadow:0 0 0 2px var(--sig)}
+.cap .n{position:absolute;top:-8px;right:-8px;background:var(--sig);color:#fff;font-size:13px;border-radius:10px;padding:0 6px;line-height:20px}
+.x{width:44px;height:44px;border-radius:8px;border:1px solid transparent;background:none;color:var(--mute);cursor:pointer;font-size:20px}
+.x:hover{border-color:var(--line);color:var(--ink)}
+.lbl{font-size:13px;color:var(--mute);text-align:center}
+.head{grid-template-columns:minmax(0,1fr) 112px 112px 44px;border:0;padding-bottom:0}
+@media(max-width:600px){.row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px}.row>div:first-child{grid-column:1/-1}.cap{min-width:0;width:100%}.head{display:none}}
+.side{display:grid;gap:16px}
+.chk{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 6px;cursor:pointer}.chk input{width:20px;height:20px;accent-color:var(--ol)}
+.pill{display:inline-block;font-size:13px;font-weight:600;border-radius:10px;padding:0 8px;margin-left:6px;vertical-align:2px}
+.pill.d{background:var(--line);color:var(--mute)}.pill.c{background:var(--sigs);color:var(--sig)}
+.row{grid-template-columns:minmax(0,1fr) auto auto 44px}
+.cap.na{visibility:hidden}
+.btn.warn{border-color:var(--sig);color:var(--sig)}
+.dupl li{margin:6px 0}.dupl ul{padding-left:18px;margin:0}
+.kc{display:inline-block;background:var(--cap);color:var(--capi);border-radius:5px;padding:0 7px;font-weight:600;font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{min-height:40px;padding:0 12px;border:0;background:none;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ol);color:light-dark(#f6f1e3,#14170f)}
+.beh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
+.muted{color:var(--mute);font-size:14px}
+.status{font-weight:600;color:var(--sig)}
+.ov{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:16px;z-index:9}
+.ov[hidden]{display:none}
+.modal{background:var(--card);border-radius:14px;padding:22px;width:min(520px,100%);display:grid;gap:12px}
+.zone{border:2px dashed var(--sig);border-radius:12px;padding:30px 14px;text-align:center;font-family:"Saira Condensed","Bahnschrift SemiBold Condensed",Bahnschrift,sans-serif;font-size:26px;user-select:none;cursor:crosshair}
+textarea{width:100%;min-height:160px;font:13px/1.4 ui-monospace,Consolas,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+details summary{cursor:pointer;font-weight:600;min-height:32px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;z-index:10}
+.toast[hidden]{display:none}
+</style></head><body>
+<div class="wrap">
+<header>
+ <div><h1>WarDogs keybind editor</h1><p>Put one key on as many actions as you want, which the in-game menu won't let you do. All 105 keyboard &amp; mouse actions, with their defaults.</p></div>
+ <div class="bar" id="topbar" hidden>
+  <button class="btn" id="undo" disabled>Undo</button>
+  <button class="btn" id="reload">Load another file</button>
+ </div>
+</header>
+
+<section id="start">
+ <div class="note" id="startNote" hidden></div>
+ <label class="drop" id="drop" for="file">
+  <strong>Drop GameUserSettings.ini here</strong>
+  <p>Or click to pick it. It's in <b>%LOCALAPPDATA%\Wardogs\Saved\Config\WindowsClient</b>. Close WarDogs first.</p>
+  <span class="btn pri" style="display:inline-flex;align-items:center;margin-top:8px">Choose file</span>
+ </label>
+ <input type="file" id="file" accept=".ini,.txt,text/plain" hidden>
+ <div class="start-more" id="startMore">
+  <details><summary>Or paste the file's text</summary>
+   <textarea id="pasteIn" placeholder="Open the .ini in Notepad, press Ctrl+A, Ctrl+C, then paste it here"></textarea>
+   <button class="btn" id="pasteGo">Load pasted text</button></details>
+ </div>
+</section>
+
+<section id="app" hidden>
+ <div class="grid">
+  <div>
+   <div class="bar" style="margin-bottom:8px">
+    <input type="search" id="q" placeholder="Search actions or keys" style="flex:1 1 220px">
+    <label class="chk"><input type="checkbox" id="onlyChg"> Changed only</label>
+    <button class="btn" id="resetAll">Reset all to default</button>
+   </div>
+   <div class="row head"><div></div><div class="lbl">Primary</div><div class="lbl">Secondary</div><div></div></div>
+   <div id="list"></div>
+   <p class="muted">Every keyboard &amp; mouse action from the in-game menu is listed in menu order. Actions marked <b>Default</b> aren't in your file yet; changing one adds it. ↺ puts a single action back on its default key. Stacked counts only look within the same section, since keys like W are meant to be shared between on foot and vehicles.</p>
+   <p><button class="btn" id="addBtn">+ Add an action by internal name</button></p>
+  </div>
+  <aside class="side">
+   <div class="card">
+    <h2>Save</h2>
+    <p class="muted" style="margin-top:0"><span class="status" id="chg">No changes yet.</span></p>
+    <div id="deskSave" hidden>
+     <div class="bar"><button class="btn pri" id="saveGame">Save to game</button><button class="btn" id="openFolder">Open folder</button></div>
+     <p class="muted" id="deskPath" style="overflow-wrap:anywhere"></p>
+     <div id="runWarn" hidden><p class="status">WarDogs looks like it's running. Close it first, or it may overwrite your changes when it exits.</p><button class="btn warn" id="saveForce">Save anyway</button></div>
+     <p class="muted">Every save keeps a backup of the previous file next to it, and the very first one is kept as <b>GameUserSettings.original-backup.ini</b>.</p>
+    </div>
+    <div class="bar"><button class="btn" id="copy">Copy file text</button><button class="btn" id="dl" hidden>Download .txt</button></div>
+    <p class="muted" id="webHelp">Open GameUserSettings.ini in Notepad, press <b>Ctrl+A</b>, paste, then save. If you download instead, rename the file to exactly <b>GameUserSettings.ini</b>. Turn on file name extensions in Windows so it doesn't stay <b>.ini.txt</b>.</p>
+    <p class="muted">If you open the keybind menu in-game and change something, the game might undo the stacked keys.</p>
+    <details><summary>Preview the output</summary><textarea id="out" readonly></textarea></details>
+   </div>
+   <div class="card dupl"><h2>Stacked keys</h2><div id="dups"></div></div>
+   <div class="card"><h2>Hold or toggle</h2><div id="beh"></div></div>
+  </aside>
+ </div>
+</section>
+</div>
+
+<div class="ov" id="capOv" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="capT">
+ <h2 id="capT" style="margin:0">Bind key</h2>
+ <div class="muted" id="capFor"></div>
+ <div class="zone" id="zone" tabindex="0">Press a key, click a mouse button or scroll here</div>
+ <div class="bar"><select id="capSel" style="flex:1 1 200px" aria-label="Or pick a key"></select><button class="btn" id="capUse">Use</button></div>
+ <div class="bar"><button class="btn" id="capClear">Unbind</button><button class="btn" id="capCancel">Cancel (Esc)</button></div>
+</div></div>
+
+<div class="ov" id="addOv" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="addT">
+ <h2 id="addT" style="margin:0">Add an action</h2>
+ <label for="addTag" class="muted">For actions that aren't in the menu list. Type the exact internal name.</label>
+ <input type="text" id="addTag" list="tags" placeholder="Input.NamedActions.Player.ScopeZoom.Decrease">
+ <datalist id="tags"></datalist>
+ <div class="bar"><button class="btn pri" id="addGo">Add, then pick its key</button><button class="btn" id="addCancel">Cancel</button></div>
+</div></div>
+<p class="muted wrap" style="padding-top:0">Fan-made tool, not affiliated with the WarDogs developers. Defaults were recorded from the game's keybind menu on Nov 24, 2026, so a game update could change them.</p>
+<div class="toast" id="toast" hidden></div>
+
+<script>/*DESKTOP*/</script>
+<script>
+/* ---- generic Unreal struct-text parser (round-trips exactly) ---- */
+function parseStruct(s){
+  let i=0;
+  const ws=()=>{const st=i;while(i<s.length&&/\s/.test(s[i]))i++;return s.slice(st,i)};
+  const atom=()=>{const st=i;while(i<s.length){const c=s[i];if(c==='"'){i++;while(i<s.length&&s[i]!=='"')i++;i++;continue}if(c===','||c===')'||c==='='||c==='(')break;i++}return s.slice(st,i)};
+  const group=()=>{
+    i++;const g=[];
+    for(;;){
+      const pre=ws();
+      if(s[i]===')'){i++;return{g,tail:pre}}
+      const it={pre};
+      if(s[i]==='('){it.v=group()}
+      else{const a=atom();if(s[i]==='='){i++;it.name=a;it.v=s[i]==='('?group():{a:atom()}}else it.v={a}}
+      it.post=ws();g.push(it);
+      if(s[i]===','){i++;continue}
+      if(s[i]===')'){i++;return{g,tail:''}}
+      throw new Error('Could not read struct near character '+i);
+    }
+  };
+  if(s[0]!=='(')return{a:s};
+  const v=group();
+  if(i!==s.length)v.rest=s.slice(i);
+  return v;
+}
+function ser(v){
+  if(v.a!==undefined)return v.a;
+  return '('+v.g.map(it=>it.pre+(it.name!==undefined?it.name+'=':'')+ser(it.v)+(it.post||'')).join(',')+v.tail+')'+(v.rest||'');
+}
+const field=(v,n)=>v&&v.g?v.g.find(it=>it.name===n):null;
+const tagOf=v=>{const f=field(v,'TagName');return f?f.v.a.replace(/^"|"$/g,''):''};
+
+/* ---- ini document ---- */
+function loadIni(text){
+  const bom=text.charCodeAt(0)===0xFEFF?'﻿':'';
+  if(bom)text=text.slice(1);
+  const eol=text.includes('\r\n')?'\r\n':'\n';
+  const lines=text.split(/\r?\n/);
+  const doc={bom,eol,lines,enh:null,beh:null,ui:[],tags:new Set()};
+  let sec='';
+  lines.forEach((ln,idx)=>{
+    const m=ln.match(/^\[(.*)\]\s*$/);if(m){sec=m[1];return}
+    const eq=ln.indexOf('=');if(eq<0)return;
+    const k=ln.slice(0,eq),val=ln.slice(eq+1);
+    for(const t of ln.matchAll(/TagName="([^"]+)"/g))doc.tags.add(t[1]);
+    try{
+      if(sec==='/Script/BHEnhancedInput.BHEnhancedInputPlayerBinds'&&k==='CustomKeybindings')doc.enh={idx,k,v:parseStruct(val)};
+      else if(sec==='/Script/WDGame.WDUserSettings'&&k==='ActionBehaviors')doc.beh={idx,k,v:parseStruct(val)};
+      else if(sec==='/Script/BHUserSettings.BHKeybindingSourceCommonUI'&&k==='CustomKeybindings')doc.ui.push({idx,k,v:parseStruct(val)});
+    }catch(e){console.warn(e)}
+    if(sec==='/Script/BHEnhancedInput.BHEnhancedInputPlayerBinds')doc.enhSec=true;
+  });
+  return doc;
+}
+function saveIni(doc){
+  const out=doc.lines.slice();
+  for(const e of [doc.enh,doc.beh,...doc.ui])if(e)out[e.idx]=e.k+'='+ser(e.v);
+  return doc.bom+out.join(doc.eol);
+}
+
+/* keyboard & mouse binds */
+function enhList(doc){
+  if(!doc.enh)return[];
+  return doc.enh.v.g.map((it,i)=>{
+    const tag=tagOf(it.v.g[0]&&it.v.g[0].v);
+    const b=it.v.g[1]&&it.v.g[1].v;
+    const slot=n=>{const f=field(b,n);if(!f)return{key:null,custom:false,exists:false};const k=field(f.v,'Key');const c=field(f.v,'bIsCustom');return{key:k?k.v.a:null,custom:!!c&&c.v.a==='True',exists:true}};
+    return{i,tag,primary:slot('PrimaryKey'),secondary:slot('SecondaryKey')};
+  });
+}
+function ensureEnh(doc){
+  if(doc.enh)return;
+  doc.lines.push('','[/Script/BHEnhancedInput.BHEnhancedInputPlayerBinds]','CustomKeybindings=()');
+  doc.enh={idx:doc.lines.length-1,k:'CustomKeybindings',v:{g:[],tail:''}};
+}
+function setSlot(doc,i,slotName,key){
+  const b=doc.enh.v.g[i].v.g[1].v;
+  let f=field(b,slotName);
+  if(!f){f={pre:'',name:slotName,v:{g:[],tail:''},post:''};if(slotName==='PrimaryKey')b.g.unshift(f);else b.g.push(f)}
+  const g=f.v.g;
+  const k=g.findIndex(x=>x.name==='Key');
+  if(key){if(k>=0)g[k].v={a:key};else g.unshift({pre:'',name:'Key',v:{a:key},post:''})}
+  else if(k>=0)g.splice(k,1);
+  if(!field(f.v,'bIsCustom'))g.push({pre:'',name:'bIsCustom',v:{a:'True'},post:''});
+  else field(f.v,'bIsCustom').v={a:'True'};
+}
+function addEnh(doc,tag,key){
+  ensureEnh(doc);
+  const v=parseStruct('(((TagName="'+tag.replace(/"/g,'')+'"), (PrimaryKey=(bIsCustom=True))))');
+  const it=v.g[0];it.pre=doc.enh.v.g.length?'':'';
+  doc.enh.v.g.push(it);
+  if(key)setSlot(doc,doc.enh.v.g.length-1,'PrimaryKey',key);
+  return doc.enh.v.g.length-1;
+}
+function removeEnh(doc,i){doc.enh.v.g.splice(i,1)}
+
+/* hold / toggle */
+function behList(doc){
+  if(!doc.beh)return[];
+  return doc.beh.v.g.map((it,i)=>({i,tag:tagOf(it.v.g[0].v),mode:it.v.g[1].v.a.trim()}));
+}
+function setBeh(doc,i,mode){doc.beh.v.g[i].v.g[1].v={a:mode}}
+
+/* UI shortcuts (keyboard slot is first, gamepad second) */
+function uiList(doc){
+  return doc.ui.map((e,i)=>{
+    const tag=tagOf(field(e.v,'Tag').v);
+    const keys=e.v.g.find(x=>x.name&&x.name!=='Tag');
+    const kb=keys&&keys.v.g[0]?field(keys.v.g[0].v,'Key'):null;
+    return{i,tag,key:kb?kb.v.a:null};
+  });
+}
+function setUi(doc,i,key){
+  const keys=doc.ui[i].v.g.find(x=>x.name&&x.name!=='Tag');
+  if(!keys.v.g[0])keys.v.g[0]={pre:'',v:{g:[],tail:''},post:''};
+  keys.v.g[0].v=key?{g:[{pre:'',name:'Key',v:{a:key},post:''}],tail:''}:{g:[],tail:''};
+}
+
+
+/* ---- tag-level helpers (keep both storage spots in sync) ---- */
+function insertLine(doc,at,text){
+  doc.lines.splice(at,0,text);
+  for(const e of [doc.enh,doc.beh,...doc.ui])if(e&&e.idx>=at)e.idx++;
+}
+function uiField(doc){
+  for(const l of doc.lines){const m=l.match(/^CustomKeybindings=\(Tag=\(TagName="[^"]+"\),(_\w+)=/);if(m)return m[1]}
+  return '_aaaagldfiflmeloojdafg';
+}
+function findEnh(doc,tag){return doc.enh?doc.enh.v.g.findIndex(it=>tagOf(it.v.g[0]&&it.v.g[0].v)===tag):-1}
+function findUi(doc,tag){return doc.ui.findIndex(e=>tagOf(field(e.v,'Tag').v)===tag)}
+function addUi(doc,tag){
+  let at;
+  if(doc.ui.length)at=Math.max(...doc.ui.map(e=>e.idx))+1;
+  else{const s=doc.lines.findIndex(l=>l.trim()==='[/Script/BHUserSettings.BHKeybindingSourceCommonUI]');
+    if(s>=0)at=s+1;else{doc.lines.push('','[/Script/BHUserSettings.BHKeybindingSourceCommonUI]');at=doc.lines.length}}
+  const GP={'Chat.OpenChat':',()','Inventory.ToggleScene':',(Key=Gamepad_FaceButton_Right),(Key=Gamepad_Special_Right)','Map.Recenter':',(Key=Gamepad_RightThumbstick)','Map.ToggleScene':',(Key=Gamepad_FaceButton_Right),(Key=Gamepad_Special_Left),(Key=HOTAS_Action_TacticalMap)','Map.ToggleZoomPreset':',(Key=Gamepad_Special_Left)','PauseMenu.ToggleScene':',(Key=Gamepad_FaceButton_Right),(Key=Gamepad_Special_Right)','PingWheel.ToggleScene':',(Key=Gamepad_RightThumbstick)','RadialWheel.Equipment.ToggleScene':',(Key=Gamepad_DPad_Right)','Scoreboard.ToggleScene':',(Key=Gamepad_Special_Left),(Key=Gamepad_FaceButton_Right)','Scoreboard.ToggleVoiceChat':',(Key=Gamepad_RightThumbstick)','Vendor.Vault.Toggle':',(Key=Gamepad_LeftThumbstick)'};
+  const gp=GP[tag.replace('UI.Action.Feature.','')]||'';
+  const k='CustomKeybindings',val='(Tag=(TagName="'+tag+'"),'+uiField(doc)+'=(()'+gp+'))';
+  insertLine(doc,at,k+'='+val);
+  const e={idx:at,k,v:parseStruct(val)};doc.ui.push(e);return doc.ui.length-1;
+}
+/* where: 'enh' | 'both' | 'ui' */
+function getBind(doc,tag,where){
+  const r={primary:null,secondary:null,inFile:false};
+  const i=findEnh(doc,tag);
+  if(where!=='ui'&&i>=0){const b=enhList(doc)[i];r.primary=b.primary.key;r.secondary=b.secondary.key;r.inFile=true;r.pExists=b.primary.exists;r.sExists=b.secondary.exists}
+  if(where!=='enh'){const u=findUi(doc,tag);if(u>=0){const x=uiList(doc)[u];if(!r.inFile){r.primary=x.key;r.inFile=true;r.pExists=true}}}
+  return r;
+}
+function setBind(doc,tag,where,slot,key){
+  if(where!=='ui'){let i=findEnh(doc,tag);if(i<0)i=addEnh(doc,tag,null);setSlot(doc,i,slot==='primary'?'PrimaryKey':'SecondaryKey',key)}
+  if(where!=='enh'&&slot==='primary'){let u=findUi(doc,tag);if(u<0)u=addUi(doc,tag);setUi(doc,u,key)}
+}
+
+
+/* WarDogs keyboard & mouse actions in menu order: [section, menu name, internal tag, default primary, default secondary, where]
+   Defaults from the in-game menu (2026-11-24). Tags read from the player's own GameUserSettings.ini.
+   where: e = main bind list only, b = main list + UI shortcuts section, u = UI shortcuts section only */
+const N='Input.NamedActions.',U='UI.Action.Feature.';
+const CATALOG=[
+['Movement','Forward',N+'Player.MoveForward','W'],
+['Movement','Backward',N+'Player.MoveBackward','S'],
+['Movement','Strafe Left',N+'Player.MoveLeft','A'],
+['Movement','Strafe Right',N+'Player.MoveRight','D'],
+['Movement','Sprint',N+'Player.Sprint','LeftShift'],
+['Movement','Slow Walk',N+'Player.SlowWalk','LeftAlt'],
+['Movement','Jump',N+'Player.Jump','SpaceBar'],
+['Movement','Crouch',N+'Player.Crouch','C'],
+['Movement','Crouch Prone',N+'Player.CrouchProne',null],
+['Movement','Prone',N+'Player.Prone','LeftControl'],
+['Movement','Lean Left',N+'Player.Lean.Left','Q'],
+['Movement','Lean Right',N+'Player.Lean.Right','E'],
+['Weapon / item','Primary Use',N+'HoldableItem.PrimaryUse','LeftMouseButton'],
+['Weapon / item','Secondary Use',N+'HoldableItem.SecondaryUse','RightMouseButton'],
+['Weapon / item','Focus / Hold Breath',N+'Player.Focus','LeftShift'],
+['Weapon / item','Melee Bash',N+'HoldableItem.Weapon.MeleeBash','V'],
+['Weapon / item','Reload',N+'HoldableItem.Weapon.Reload','R'],
+['Weapon / item','Increase Zeroing',N+'HoldableItem.Weapon.IncreaseZeroing','PageUp'],
+['Weapon / item','Decrease Zeroing',N+'HoldableItem.Weapon.DecreaseZeroing','PageDown'],
+['Weapon / item','Cycle Fire Mode',N+'HoldableItem.Weapon.CycleFireMode','B'],
+['Weapon / item','Cycle Sights',N+'HoldableItem.Weapon.CycleSights','Z'],
+['Weapon / item','Mount Bipod',N+'HoldableItem.Weapon.Bipod.Mount','G'],
+['Weapon / item','Toggle Bipod Fold',N+'HoldableItem.Weapon.Bipod.ToggleFold','G'],
+['Weapon / item','Deploy Parachute',N+'Player.DeployParachute','SpaceBar'],
+['Weapon / item','Cut Parachute',N+'Player.CutParachute','C'],
+['Weapon / item','Inspect',N+'HoldableItem.Inspect','I'],
+['Weapon / item','Next Slot',N+'Inventory.ChangeNext','MouseScrollDown'],
+['Weapon / item','Previous Slot',N+'Inventory.ChangePrev','MouseScrollUp'],
+['Weapon / item','Holster Item',N+'Inventory.ToggleHands','X'],
+['Weapon / item','Equipment Wheel',U+'RadialWheel.Equipment.ToggleScene','Four',null,'b'],
+...['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Zero'].map((k,i)=>['Weapon / item','Quick Slot '+((i+1)%10),N+'Inventory.Change.'+((i+1)%10),k]),
+['Interaction','Interact',N+'Player.Interact','F'],
+['Communication','Enable/Disable Voice Chat',N+'Player.VOIP.ToggleVoiceChat',null],
+['Communication','Enable/Disable Voice Chat (Scoreboard)',U+'Scoreboard.ToggleVoiceChat','U',null,'b'],
+['Communication','Push-To-Talk (Squad)',N+'Player.VOIP.PushToTalk.Squad','J'],
+['Communication','Push-To-Talk (Proximity)',N+'Player.VOIP.PushToTalk.Proximity','K'],
+['Communication','Ping',N+'Ping','MiddleMouseButton'],
+['Communication','Ping Wheel (Hold)',U+'PingWheel.ToggleScene','MiddleMouseButton',null,'b'],
+['Communication','Tip',N+'Player.Tip','F1'],
+['Communication','Reject Tip',N+'Player.Tip.Reject','F2'],
+['Communication','Bribe',N+'Player.Downed.Bribe','F1'],
+['Build tool','Dismantle',N+'HoldableItem.BuildTool.Dismantle','V'],
+['Build tool','Rotate Buildable',N+'HoldableItem.BuildTool.Rotate','R'],
+['Build tool','Toggle Snapping',N+'HoldableItem.BuildTool.ToggleSnapping','B'],
+['Ground vehicle','Throttle',N+'Vehicle.Throttle','W'],
+['Ground vehicle','Brake',N+'Vehicle.Brake','S'],
+['Ground vehicle','Steer Right',N+'Vehicle.Steering.Right','D'],
+['Ground vehicle','Steer Left',N+'Vehicle.Steering.Left','A'],
+['Ground vehicle','Handbrake',N+'Vehicle.Handbrake','SpaceBar'],
+['Ground vehicle','Gear Shift R',N+'Vehicle.GearshiftR','R'],
+['Rotary vehicle','Collective (Raise)',N+'Vehicle.Collective.Raise','LeftShift'],
+['Rotary vehicle','Collective (Lower)',N+'Vehicle.Collective.Lower','LeftControl'],
+['Rotary vehicle','Increase Cyclic X',N+'Vehicle.Cyclic.X.Positive','W'],
+['Rotary vehicle','Decrease Cyclic X',N+'Vehicle.Cyclic.X.Negative','S'],
+['Rotary vehicle','Increase Cyclic Y',N+'Vehicle.Cyclic.Y.Positive','D'],
+['Rotary vehicle','Decrease Cyclic Y',N+'Vehicle.Cyclic.Y.Negative','A'],
+['Rotary vehicle','Yaw Left',N+'Vehicle.Pedals.Left','Q'],
+['Rotary vehicle','Yaw Right',N+'Vehicle.Pedals.Right','E'],
+['Missile','Increase Cyclic X',N+'Drone.Projectile.Cyclic.X.Positive','W'],
+['Missile','Decrease Cyclic X',N+'Drone.Projectile.Cyclic.X.Negative','S'],
+['General vehicle','Next Seat',N+'Vehicle.ChangeSeat.Next','Zero'],
+['General vehicle','Previous Seat',N+'Vehicle.ChangeSeat.Prev','Nine'],
+['General vehicle','Lock/Unlock Vehicle',N+'Vehicle.CycleLockState','L'],
+['General vehicle','Activate Counter Measure',N+'Vehicle.FireCountermeasures','V'],
+['General vehicle','Buy Ammo / Supplies',N+'Vehicle.OpenGarageVendor','B'],
+['General vehicle','Deploy Supply Crate',N+'Vehicle.DeploySupplyCrate','G'],
+['General vehicle','Horn',N+'Vehicle.Horn','H'],
+['Vehicle weapons','Fire Weapon',N+'Vehicle.MountedWeapon.Fire','LeftMouseButton','SpaceBar'],
+['Vehicle weapons','Cycle Weapons',N+'Vehicle.WeaponExtension.CycleWeapons','Z'],
+['Vehicle weapons','Cycle Fire Mode',N+'Vehicle.WeaponExtension.CycleFireMode','B'],
+['Vehicle weapons','Eject From Projectile',N+'Projectile.Eject','C'],
+['Vehicle weapons','Vehicle Weapon Pitch Up',N+'Vehicle.MountedWeapon.PitchUp','W'],
+['Vehicle weapons','Vehicle Weapon Pitch Down',N+'Vehicle.MountedWeapon.PitchDown','S'],
+['Vehicle weapons','Vehicle Weapon Yaw Left',N+'Vehicle.MountedWeapon.YawLeft','A'],
+['Vehicle weapons','Vehicle Weapon Yaw Right',N+'Vehicle.MountedWeapon.YawRight','D'],
+['Vehicle camera','Toggle Free Look',N+'Vehicle.Camera.ToggleFreeLook','LeftAlt'],
+['Vehicle camera','Toggle Camera Mode',N+'Vehicle.Camera.ToggleMode','C'],
+['Vehicle camera','Camera Left View',N+'Vehicle.Camera.LeftView','Left'],
+['Vehicle camera','Camera Right View',N+'Vehicle.Camera.RightView','Right'],
+['Vehicle camera','Camera Rear View',N+'Vehicle.Camera.RearView','Down'],
+['Vehicle camera','Camera Zoom In',N+'Vehicle.Camera.ZoomIn','PageUp'],
+['Vehicle camera','Camera Zoom Out',N+'Vehicle.Camera.ZoomOut','PageDown'],
+['UI: general','Pause Menu',U+'PauseMenu.ToggleScene','Escape',null,'b'],
+['UI: general','Inventory',U+'Inventory.ToggleScene','Tab',null,'b'],
+['UI: general','Scoreboard',U+'Scoreboard.ToggleScene','L',null,'b'],
+['UI: general','Give Up',N+'Player.Downed.GiveUp','F'],
+['UI: general','Chat',U+'Chat.OpenChat','Enter',null,'b'],
+['UI: general','Toggle Vault',U+'Vendor.Vault.Toggle','V',null,'b'],
+['UI: map','Tactical Map',U+'Map.ToggleScene','M',null,'b'],
+['UI: map','Recenter Tactical Map',U+'Map.Recenter','X',null,'u'],
+['UI: map','Zoom Minimap In',N+'UI.Minimap.ZoomedIn','LeftBracket'],
+['UI: map','Zoom Minimap Out',N+'UI.Minimap.ZoomedOut','RightBracket'],
+['UI: active reload','Active Reload - Up',N+'Vehicle.WeaponExtension.ActiveReload.Up','Up','W'],
+['UI: active reload','Active Reload - Right',N+'Vehicle.WeaponExtension.ActiveReload.Right','Right','D'],
+['UI: active reload','Active Reload - Left',N+'Vehicle.WeaponExtension.ActiveReload.Left','Left','A'],
+['UI: active reload','Active Reload - Down',N+'Vehicle.WeaponExtension.ActiveReload.Down','Down','S'],
+].map(([sec,name,tag,p,s,w])=>({sec,name,tag,def:[p||null,s||null],where:w==='b'?'both':w==='u'?'ui':'enh'}));
+
+
+</script>
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEYS=[...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],NUM=['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine'];
+const ALL=[...KEYS,...NUM,...Array.from({length:12},(_,i)=>'F'+(i+1)),'SpaceBar','LeftShift','RightShift','LeftControl','RightControl','LeftAlt','RightAlt','Tab','CapsLock','Enter','Escape','BackSpace','Tilde','Hyphen','Equals','LeftBracket','RightBracket','Backslash','Semicolon','Apostrophe','Comma','Period','Slash','Insert','Delete','Home','End','PageUp','PageDown','Up','Down','Left','Right',...NUM.map(n=>'NumPad'+n),'Multiply','Add','Subtract','Decimal','Divide','LeftMouseButton','RightMouseButton','MiddleMouseButton','ThumbMouseButton','ThumbMouseButton2','MouseScrollUp','MouseScrollDown'];
+const CODE={Space:'SpaceBar',ShiftLeft:'LeftShift',ShiftRight:'RightShift',ControlLeft:'LeftControl',ControlRight:'RightControl',AltLeft:'LeftAlt',AltRight:'RightAlt',Tab:'Tab',CapsLock:'CapsLock',Enter:'Enter',NumpadEnter:'Enter',Backspace:'BackSpace',Backquote:'Tilde',Minus:'Hyphen',Equal:'Equals',BracketLeft:'LeftBracket',BracketRight:'RightBracket',Backslash:'Backslash',Semicolon:'Semicolon',Quote:'Apostrophe',Comma:'Comma',Period:'Period',Slash:'Slash',Insert:'Insert',Delete:'Delete',Home:'Home',End:'End',PageUp:'PageUp',PageDown:'PageDown',ArrowUp:'Up',ArrowDown:'Down',ArrowLeft:'Left',ArrowRight:'Right',NumpadMultiply:'Multiply',NumpadAdd:'Add',NumpadSubtract:'Subtract',NumpadDecimal:'Decimal',NumpadDivide:'Divide'};
+const MOUSE=['LeftMouseButton','MiddleMouseButton','RightMouseButton','ThumbMouseButton','ThumbMouseButton2'];
+const NICE={SpaceBar:'Space',LeftMouseButton:'Mouse 1 (left)',RightMouseButton:'Mouse 2 (right)',MiddleMouseButton:'Mouse 3 (middle)',ThumbMouseButton:'Mouse 4 (thumb)',ThumbMouseButton2:'Mouse 5 (thumb)',MouseScrollUp:'Scroll up',MouseScrollDown:'Scroll down',LeftControl:'Left Ctrl',RightControl:'Right Ctrl',LeftShift:'Left Shift',RightShift:'Right Shift',LeftAlt:'Left Alt',RightAlt:'Right Alt',BackSpace:'Backspace',Tilde:'` ~',Hyphen:'-',Equals:'=',LeftBracket:'[',RightBracket:']',Backslash:'\\',Semicolon:';',Apostrophe:"'",Comma:',',Period:'.',Slash:'/'};
+NUM.forEach((n,i)=>{NICE[n]=String(i);NICE['NumPad'+n]='Num '+i});
+const nice=k=>NICE[k]||k;
+const words=s=>s.replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/VOIP/g,'Voice');
+function label(tag){
+  const p=tag.replace(/^Input\.NamedActions\./,'').replace(/^UI\.Action\.Feature\./,'UI.').replace(/^UserSettings\.Controls\.ActionBehavior\./,'').split('.');
+  const cat=p.length>1?p[0]:'General';
+  return{cat:cat==='HoldableItem'?'Weapon & items':words(cat),name:(p.length>1?p.slice(1):p).map(words).join(' › ')};
+}
+
+let doc=null,orig='',hist=[],cap=null,armed=false;
+function snap(){hist.push(saveIni(doc));$('undo').disabled=false}
+function commit(){render();try{localStorage.setItem('wd-ini',saveIni(doc))}catch(e){}}
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2200)}
+const BYTAG=new Map(CATALOG.map(c=>[c.tag,c]));
+
+function open(text){
+  try{doc=loadIni(text)}catch(e){toast('Could not read that file');return}
+  if(!doc.enh&&!doc.beh&&!doc.ui.length)toast("That doesn't look like a WarDogs GameUserSettings.ini");
+  orig=saveIni(doc);hist=[];$('undo').disabled=true;
+  $('start').hidden=true;$('app').hidden=false;$('topbar').hidden=false;
+  commit();
+}
+function rows(){
+  const r=CATALOG.slice();
+  const extra=new Set([...enhList(doc).map(b=>b.tag),...uiList(doc).map(u=>u.tag)].filter(t=>t&&!BYTAG.has(t)));
+  for(const t of extra){const inE=findEnh(doc,t)>=0,inU=findUi(doc,t)>=0;r.push({sec:'Not in the menu',name:label(t).name,tag:t,def:[null,null],where:inE&&inU?'both':inU?'ui':'enh',extra:true})}
+  return r.map(c=>{const b=getBind(doc,c.tag,c.where);
+    const p=b.inFile&&b.pExists?b.primary:c.def[0];
+    const s=c.where==='ui'?null:(b.inFile&&b.sExists?b.secondary:c.def[1]);
+    return Object.assign({},c,{inFile:b.inFile,cur:[p,s],changed:!c.extra&&(p!==c.def[0]||s!==c.def[1])})});
+}
+function reset(c){
+  setBind(doc,c.tag,c.where,'primary',c.def[0]);
+  if(c.where!=='ui'){const b=getBind(doc,c.tag,c.where);if(c.def[1]||b.sExists)setBind(doc,c.tag,c.where,'secondary',c.def[1])}
+}
+function render(){
+  const all=rows(),q=$('q').value.trim().toLowerCase(),only=$('onlyChg').checked;
+  const stacks={};
+  all.forEach(r=>r.cur.forEach(k=>{if(k){const id=r.sec+'|'+k;(stacks[id]=stacks[id]||[]).push(r)}}));
+  const real=id=>stacks[id]&&stacks[id].length>1&&stacks[id].some(r=>r.changed);
+  const cats=[];
+  all.forEach((r,i)=>{r.i=i;
+    const hay=(r.sec+' '+r.name+' '+r.tag+' '+r.cur.map(k=>k?k+' '+nice(k):'').join(' ')).toLowerCase();
+    if(q&&!hay.includes(q))return;if(only&&!r.changed)return;
+    let c=cats.find(x=>x.sec===r.sec);if(!c)cats.push(c={sec:r.sec,list:[]});c.list.push(r)});
+  const capBtn=(r,s)=>{
+    if(s===1&&r.where==='ui')return '<button class="cap na" tabindex="-1" aria-hidden="true">-</button>';
+    const k=r.cur[s],id=r.sec+'|'+k,st=k&&real(id),n=st?stacks[id].length:0;
+    const tip=st?'Also on: '+stacks[id].filter(x=>x!==r).map(x=>x.name).join(', '):'';
+    return '<button class="cap'+(k?'':' empty')+(st?' dup':'')+'" data-i="'+r.i+'" data-s="'+s+'" title="'+esc(tip)+'">'+(k?esc(nice(k)):'Unbound')+(st?'<span class="n">'+n+'</span>':'')+'</button>'};
+  $('list').innerHTML=cats.length?cats.map(c=>'<div class="cat">'+esc(c.sec)+'</div>'+c.list.map(r=>
+    '<div class="row"><div><div class="nm">'+esc(r.name)+(r.extra?'':r.changed?'<span class="pill c">Changed</span>':r.inFile?'':'<span class="pill d">Default</span>')+'</div><div class="tg">'+esc(r.tag)+(r.extra?'':' · default '+esc(r.def.filter(Boolean).map(nice).join(' / ')||'unbound'))+'</div></div>'+capBtn(r,0)+capBtn(r,1)+
+    (r.changed?'<button class="x" data-rs="'+r.i+'" title="Reset to default" aria-label="Reset '+esc(r.name)+' to default">↺</button>':'<span></span>')+'</div>').join('')).join('')
+    :'<p class="muted">'+(only?'Nothing changed from default yet.':'Nothing matches that search.')+'</p>';
+  const d=Object.keys(stacks).filter(real);
+  $('dups').innerHTML=d.length?'<ul>'+d.map(id=>{const k=id.split('|')[1];return '<li><span class="kc">'+esc(nice(k))+'</span> '+esc(id.split('|')[0])+': '+stacks[id].map(x=>esc(x.name)).join(', ')+'</li>'}).join('')+'</ul>':'<p class="muted" style="margin:0">Nothing stacked yet. Click a keycap and give it a key another action in the same section already uses.</p>';
+  const bh=behList(doc);
+  $('beh').innerHTML=bh.length?bh.map(b=>{const t=b.tag.split('.');const nm=(t[t.length-2]==='Gamepad'?'Gamepad ':'')+words(t[t.length-1]);return '<div class="beh"><span>'+esc(nm)+'</span><span class="seg">'+['Hold','Toggle'].map(m=>'<button data-beh="'+b.i+'" data-m="'+m+'" aria-pressed="'+(b.mode===m)+'">'+m+'</button>').join('')+'</span></div>'}).join(''):'<p class="muted">None in this file.</p>';
+  const out=saveIni(doc);$('out').value=out;
+  const n=hist.length;$('chg').textContent=out===orig?'No changes yet.':n+' edit'+(n===1?'':'s')+' ready to save.';
+  window.__rows=all;
+}
+
+/* capture dialog */
+$('capSel').innerHTML='<option value="">Or pick a key…</option>'+ALL.map(k=>'<option value="'+k+'">'+esc(nice(k))+(NICE[k]?' ('+k+')':'')+'</option>').join('');
+function openCap(c,title){cap=c;$('capFor').textContent=title;$('capSel').value='';$('capOv').hidden=false;$('zone').focus()}
+function closeCap(){cap=null;$('capOv').hidden=true}
+function apply(key){
+  if(!cap)return;const c=cap;closeCap();snap();
+  setBind(doc,c.r.tag,c.r.where,c.s,key);
+  commit();toast(key?'Bound to '+nice(key):'Unbound');
+}
+window.addEventListener('keydown',e=>{
+  if(!cap)return;
+  if(e.target===$('capSel'))return;
+  e.preventDefault();
+  if(e.code==='Escape'){closeCap();return}
+  let k=CODE[e.code];
+  if(!k&&/^Key[A-Z]$/.test(e.code))k=e.code.slice(3);
+  if(!k&&/^Digit\d$/.test(e.code))k=NUM[+e.code[5]];
+  if(!k&&/^Numpad\d$/.test(e.code))k='NumPad'+NUM[+e.code[6]];
+  if(!k&&/^F\d{1,2}$/.test(e.code))k=e.code;
+  if(k)apply(k);else toast("That key isn't in the list. Pick it from the dropdown.");
+});
+$('zone').addEventListener('mousedown',e=>{e.preventDefault();const k=MOUSE[e.button];if(k)apply(k)});
+['contextmenu','auxclick','mouseup'].forEach(t=>$('zone').addEventListener(t,e=>e.preventDefault()));
+$('zone').addEventListener('wheel',e=>{e.preventDefault();if(e.deltaY)apply(e.deltaY<0?'MouseScrollUp':'MouseScrollDown')},{passive:false});
+$('capUse').onclick=()=>{if($('capSel').value)apply($('capSel').value)};
+$('capClear').onclick=()=>apply(null);
+$('capCancel').onclick=closeCap;
+
+/* list clicks */
+$('app').addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.id!=='resetAll'&&armed){armed=false;$('resetAll').textContent='Reset all to default';$('resetAll').classList.remove('warn')}
+  if(t.dataset.s){const r=window.__rows[+t.dataset.i];openCap({r,s:t.dataset.s==='0'?'primary':'secondary'},r.sec+' › '+r.name+' · '+(t.dataset.s==='0'?'primary':'secondary')+' key')}
+  else if(t.dataset.rs){const r=window.__rows[+t.dataset.rs];snap();reset(r);commit();toast(r.name+' is back on its default')}
+  else if(t.dataset.beh){snap();setBeh(doc,+t.dataset.beh,t.dataset.m);commit()}
+});
+$('resetAll').onclick=()=>{
+  const b=$('resetAll');
+  if(!armed){armed=true;b.textContent='Click again to reset all 105';b.classList.add('warn');return}
+  armed=false;b.textContent='Reset all to default';b.classList.remove('warn');
+  snap();CATALOG.forEach(reset);commit();toast('All 105 actions written on their defaults');
+};
+$('q').addEventListener('input',render);
+$('onlyChg').addEventListener('change',render);
+$('undo').onclick=()=>{if(!hist.length)return;const t=hist.pop();doc=loadIni(t);$('undo').disabled=!hist.length;commit()};
+$('reload').onclick=()=>{$('app').hidden=true;$('topbar').hidden=true;$('start').hidden=false;$('file').value=''};
+
+/* add action */
+$('addBtn').onclick=()=>{$('tags').innerHTML=[...doc.tags].filter(t=>/^(Input\.NamedActions|UI\.Action)/.test(t)&&!BYTAG.has(t)).sort().map(t=>'<option value="'+esc(t)+'">').join('');$('addTag').value='';$('addOv').hidden=false;$('addTag').focus()};
+$('addCancel').onclick=()=>$('addOv').hidden=true;
+$('addGo').onclick=()=>{
+  const tag=$('addTag').value.trim().replace(/"/g,'');
+  if(!/^[A-Za-z0-9_.]+$/.test(tag)){toast('Enter an action name like Input.NamedActions.Player.Sprint');return}
+  $('addOv').hidden=true;
+  const known=BYTAG.get(tag);
+  const r=known||{tag,name:label(tag).name,where:/^UI\.Action\./.test(tag)?'both':'enh',sec:'Not in the menu'};
+  openCap({r,s:'primary'},(known?known.sec+' › ':'')+r.name+' · primary key');
+};
+$('addTag').addEventListener('keydown',e=>{if(e.key==='Enter')$('addGo').click()});
+
+/* load */
+$('file').addEventListener('change',e=>{const f=e.target.files[0];if(f)f.text().then(open)});
+const dz=$('drop');
+['dragenter','dragover'].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.remove('over')}));
+dz.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)f.text().then(open)});
+$('pasteGo').onclick=()=>{const t=$('pasteIn').value;if(t.trim())open(t)};
+
+/* save */
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(saveIni(doc));toast('Copied. Paste it over everything in the .ini')}catch(e){$('out').closest('details').open=true;$('out').select();toast('Copy was blocked. The text is selected below, press Ctrl+C')}};
+let downloads=null;
+if(window.claude&&claude.use)claude.use('downloads').then(d=>{downloads=d;$('dl').hidden=!d}).catch(()=>{});
+$('dl').onclick=async()=>{try{await downloads.save({filename:'GameUserSettings.ini.txt',data:saveIni(doc)});toast('Saved. Rename it to GameUserSettings.ini')}catch(e){if(e&&e.code!=='declined')toast('Download unavailable here. Use Copy instead.')}};
+
+const D=window.WD_DESKTOP;
+if(D){
+  const api=(p,body)=>fetch(p,{method:body?'POST':'GET',headers:{'X-Token':D.token,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined}).then(async r=>({status:r.status,data:await r.json().catch(()=>({}))}));
+  $('deskSave').hidden=false;$('webHelp').hidden=true;$('dl').remove();
+  $('copy').textContent='Copy file text instead';
+  const load=()=>api('/api/load').then(({status,data})=>{
+    if(status===200){open(data.text);$('deskPath').textContent='Saves to '+data.path;$('runWarn').hidden=!data.running}
+    else{const n=$('startNote');n.hidden=false;n.textContent="Couldn't find your settings file at "+(data.path||'the usual place')+'. Start WarDogs once so it creates the file, or pick it by hand below.'}
+  }).catch(()=>{const n=$('startNote');n.hidden=false;n.textContent='The editor app is closed. Start WD-Keybind-Editor.exe again.'});
+  const save=force=>api('/api/save',{text:saveIni(doc),force}).then(({status,data})=>{
+    if(status===409){$('runWarn').hidden=false;toast('WarDogs is running. Close it first.');return}
+    if(status!==200){toast('Save failed: '+(data.error||status));return}
+    $('runWarn').hidden=true;orig=saveIni(doc);render();$('chg').textContent='Saved to the game folder.';toast('Saved. Backup kept next to it.');
+  }).catch(()=>toast('The editor app is closed. Start it again, then save.'));
+  $('saveGame').onclick=()=>save(false);
+  $('saveForce').onclick=()=>save(true);
+  $('openFolder').onclick=()=>api('/api/folder',{});
+  $('reload').textContent='Load a file by hand';
+  $('startMore').insertAdjacentHTML('afterbegin','<div><button class="btn pri" id="backGame">Back to my game settings</button></div>');
+  $('backGame').onclick=load;
+  load();
+}
+if(!D)try{const s=localStorage.getItem('wd-ini');if(s){$('startMore').insertAdjacentHTML('afterbegin','<div><button class="btn" id="resume">Reopen the file from last time</button></div>');$('resume').onclick=()=>open(s)}}catch(e){}
+
+}
+</script>
+</body></html>
