@@ -6,11 +6,11 @@ The in-game keybind menu in **WarDogs** won't let you put one key on two actions
 
 ## Download
 
-Get **WD-Keybind-Editor.exe** from the [Releases](../../releases) page.
+Download **WD-Keybind-Editor-v1.2.zip** from the [Releases](../../releases) page. Right-click it, choose **Extract All**, and open the extracted folder.
 
 ## How to use
 
-1. Run `WD-Keybind-Editor.exe`. A small console window opens and the editor opens in your web browser. Keep the console window open while you edit.
+1. Run `WD-Keybind-Editor.exe` from the extracted folder. Don't run it from inside the zip. A small console window opens and the editor opens in your web browser. Keep the console window open while you edit.
 2. Your settings load automatically. Click any key to rebind it: press a key, click a mouse button, or scroll. The same key can go on as many actions as you like.
 3. Click **Save to game**. If WarDogs is open, the editor warns you first; click **Save anyway**.
 4. **Reload the game** to apply your changes. Changes made in the editor don't take effect in a running game until you reload.
