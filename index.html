@@ -121,7 +121,7 @@ details summary{cursor:pointer;font-weight:600;min-height:32px}
     <div id="deskSave" hidden>
      <div class="bar"><button class="btn pri" id="saveGame">Save to game</button><button class="btn" id="openFolder">Open folder</button></div>
      <p class="muted" id="deskPath" style="overflow-wrap:anywhere"></p>
-     <div id="runWarn" hidden><p class="status">WarDogs looks like it's running. Close it first, or it may overwrite your changes when it exits.</p><button class="btn warn" id="saveForce">Save anyway</button></div>
+     <div id="runWarn" hidden><p class="status">WarDogs is running. Saving now is fine, but reload the game afterwards, and don't change binds in the game's own menu or it may overwrite this.</p><button class="btn warn" id="saveForce">Save anyway</button></div>
      <p class="muted">Every save keeps a backup of the previous file next to it, and the very first one is kept as <b>GameUserSettings.original-backup.ini</b>.</p>
     </div>
     <div class="bar"><button class="btn" id="copy">Copy file text</button><button class="btn" id="dl" hidden>Download .txt</button></div>
@@ -571,9 +571,9 @@ if(D){
     else{const n=$('startNote');n.hidden=false;n.textContent="Couldn't find your settings file at "+(data.path||'the usual place')+'. Start WarDogs once so it creates the file, or pick it by hand below.'}
   }).catch(()=>{const n=$('startNote');n.hidden=false;n.textContent='The editor app is closed. Start WD-Keybind-Editor.exe again.'});
   const save=force=>api('/api/save',{text:saveIni(doc),force}).then(({status,data})=>{
-    if(status===409){$('runWarn').hidden=false;toast('WarDogs is running. Close it first.');return}
+    if(status===409){$('runWarn').hidden=false;toast('WarDogs is running. Click Save anyway to save.');return}
     if(status!==200){toast('Save failed: '+(data.error||status));return}
-    $('runWarn').hidden=true;orig=saveIni(doc);render();$('chg').textContent='Saved to the game folder.';toast('Saved. Backup kept next to it.');
+    $('runWarn').hidden=true;orig=saveIni(doc);render();$('chg').textContent='Saved to the game folder.';toast('Saved. Reload WarDogs to apply it.');
   }).catch(()=>toast('The editor app is closed. Start it again, then save.'));
   $('saveGame').onclick=()=>save(false);
   $('saveForce').onclick=()=>save(true);

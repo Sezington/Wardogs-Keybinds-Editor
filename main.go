@@ -23,7 +23,7 @@ import (
 //go:embed index.html
 var page string
 
-const version = "1.1"
+const version = "1.2"
 
 var token string
 
