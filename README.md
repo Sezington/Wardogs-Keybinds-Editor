@@ -46,9 +46,14 @@ go build -ldflags="-s -w" -o WD-Keybind-Editor.exe .
 
 This was **vibe coded**: I described what I wanted and built it together with an AI (Claude). I'm not a professional developer, and there's nothing special about it. Anyone could have made this. I just wanted to stack my keybinds and figured others might too. Test it, keep the backups it makes, and report anything weird in [Issues](../../issues).
 
-## Use it however you want
+## Use it however you want (just not for money)
 
-Anyone can download it, change it, fork it, redo it, bundle it, or use it any way they like, for free. The one condition is that you credit me (**Sezington**) as the original creator, for example with a link back to this repo. That's what the [MIT License](LICENSE) here means: keep the copyright notice when you share it or something built from it.
+Anyone can download it, change it, fork it, re-upload it or build on it for free. There are two conditions:
+
+1. **Credit me** (**Sezington**) as the original creator, with a link back to this repo, and say if you changed anything.
+2. **No making money off it.** Don't sell it or anything built from it, and don't put it behind a paywall, subscription or donation gate.
+
+This is the [Creative Commons Attribution-NonCommercial 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license (CC BY-NC 4.0). See [LICENSE](LICENSE).
 
 ---
 
