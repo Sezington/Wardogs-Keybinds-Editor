@@ -51,6 +51,7 @@ This was **vibe coded**: I described what I wanted and built it together with an
 Anyone can download it, change it, fork it, re-upload it or build on it for free. There are two conditions:
 
 1. **Credit me** (**Sezington**) as the original creator, with a link back to this repo, and say if you changed anything.
+   You can take credit for your own changes and additions. Put your name on what you added, as long as I'm still credited for the original.
 2. **No making money off it.** Don't sell it or anything built from it, and don't put it behind a paywall, subscription or donation gate.
 
 This is the [Creative Commons Attribution-NonCommercial 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license (CC BY-NC 4.0). See [LICENSE](LICENSE).
