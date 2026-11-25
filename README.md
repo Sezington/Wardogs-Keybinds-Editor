@@ -1,6 +1,6 @@
 # WarDogs Keybind Editor
 
-The in-game keybind menu in **WarDogs** won't let you put one key on two actions. This tool edits your settings file directly so you can, for example Crouch and Crouch Prone both on `C`, or a second key for Slow Walk.
+The in-game keybind menu in **WarDogs** won't let you put one key on two actions. This tool edits your settings file directly so you can, for example Raise Collective with 'Space' and still jump with 'Space'
 
 ![The editor with Crouch and Crouch Prone stacked on C](docs/screenshot.png)
 
