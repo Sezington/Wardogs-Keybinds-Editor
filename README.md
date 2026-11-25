@@ -42,6 +42,14 @@ go build -ldflags="-s -w" -o WD-Keybind-Editor.exe .
 
 `main.go` is the small local server that reads and saves the file. `index.html` is the whole editor.
 
+## About this project
+
+This was **vibe coded**: I described what I wanted and built it together with an AI (Claude). I'm not a professional developer, and there's nothing special about it. Anyone could have made this. I just wanted to stack my keybinds and figured others might too. Test it, keep the backups it makes, and report anything weird in [Issues](../../issues).
+
+## Use it however you want
+
+Anyone can download it, change it, fork it, redo it, bundle it, or use it any way they like, for free. The one condition is that you credit me (**Sezington**) as the original creator, for example with a link back to this repo. That's what the [MIT License](LICENSE) here means: keep the copyright notice when you share it or something built from it.
+
 ---
 
 Fan-made tool, not affiliated with the WarDogs developers.
